@@ -11,7 +11,6 @@ class ForgetPasswordController extends GetxController {
   static ForgetPasswordController get instance => Get.find();
 
   final email = TextEditingController();
-  GlobalKey<FormState> forgetPasswordFormKey = GlobalKey<FormState>();
 
   sendPasswordResetEmail() async {
     try {
@@ -24,10 +23,13 @@ class ForgetPasswordController extends GetxController {
         return;
       }
 
+      /*
       if (!forgetPasswordFormKey.currentState!.validate()) {
         FullScreenLoader.stopLoading();
         return;
       }
+      */
+
       // await AuthenticationRepository.instance.sendPasswordResetEmail(email.text.trim());
 
       FullScreenLoader.stopLoading();

@@ -16,7 +16,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = UserController.instance;
+    final controller = Get.put(UserController());
     return Scaffold(
       appBar: MyAppBar(
         title: Text('Profile'),
@@ -32,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     CircularImage(
-                        image: MyImages.google, width: 80, height: 80),
+                        image: MyImages.profile, width: 100, height: 100),
                     TextButton(
                         onPressed: () {},
                         child: const Text('Change Profile Picture')),

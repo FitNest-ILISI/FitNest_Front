@@ -6,17 +6,14 @@ import 'package:fitnest/utils/constants/text_strings.dart';
 class LoginHeader extends StatelessWidget {
   const LoginHeader({
     super.key,
-    required this.dark,
   });
-
-  final bool dark;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image(
+        const Image(
           height: 130,
           width: 180,
           image: AssetImage(MyImages.FNLargeLogo),

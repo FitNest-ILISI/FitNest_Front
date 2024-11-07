@@ -14,8 +14,6 @@ class LoginController extends GetxController {
   final localStorage = GetStorage();
   final email = TextEditingController();
   final password = TextEditingController();
-  GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
-  //final userController = Get.put(UserController());
 
   @override
   void onInit() {
@@ -38,11 +36,12 @@ class LoginController extends GetxController {
       }
 
       // Form Validation
+      /*
       if (!loginFormKey.currentState!.validate()) {
         FullScreenLoader.stopLoading();
         return;
       }
-
+*/
       // Save Data if Remember Me is selected
       if (rememberMe.value) {
         localStorage.write('REMEMBER_ME_EMAIL', email.text.trim());
@@ -54,9 +53,6 @@ class LoginController extends GetxController {
 
       // Remove Loader
       FullScreenLoader.stopLoading();
-
-      // Redirect
-      //AuthenticationRepository.instance.screenRedirect();
     } catch (e) {
       FullScreenLoader.stopLoading();
       Loaders.errorSnackBar(title: 'Oops!', message: e.toString());
@@ -74,13 +70,7 @@ class LoginController extends GetxController {
         return;
       }
 
-      //final userCredentials = await AuthenticationRepository.instance.signInWithGoogle();
-
-      // await userController.saveUserRecord(userCredentials);
-
       FullScreenLoader.stopLoading();
-
-      //AuthenticationRepository.instance.screenRedirect();
     } catch (e) {
       FullScreenLoader.stopLoading();
       Loaders.errorSnackBar(title: 'Oops!', message: e.toString());

@@ -17,9 +17,9 @@ class OnBoardingDotNavigation extends StatelessWidget {
       left: MySizes.spaceBtwSections * 5,
       child: SmoothPageIndicator(
         controller: controller.pageController,
-        count: 3,
+        count: 4,
         effect: const ExpandingDotsEffect(
-          activeDotColor: MyColors.admiral,
+          activeDotColor: Colors.blue,
           dotColor: MyColors.softGrey,
           dotHeight: 10,
           dotWidth: 10,
