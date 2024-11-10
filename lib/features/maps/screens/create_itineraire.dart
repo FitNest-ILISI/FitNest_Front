@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import 'package:fluttertoast/fluttertoast.dart';
-
 
 class CreationItineraire extends StatefulWidget {
   @override
@@ -12,39 +10,35 @@ class CreationItineraire extends StatefulWidget {
 }
 
 class _CreationItineraireState extends State<CreationItineraire> {
-  LatLng? startPoint;
-  LatLng? endPoint;
   List<LatLng> routePoints = [];
   String apiKey = '5b3ce3597851110001cf6248465d6b0ae5b34c62881034d3a7aada1b';
 
-  void _setPoint(LatLng point) {
+  // Ajouter un point sélectionné à la liste des points
+  void _addPoint(LatLng point) {
     setState(() {
-      if (startPoint == null) {
-        startPoint = point;
-      } else if (endPoint == null) {
-        endPoint = point;
-        _calculateRoute();
-      } else {
-        startPoint = point;
-        endPoint = null;
-        routePoints.clear();
-      }
+      routePoints.add(point);
     });
   }
 
+  // Calculer l'itinéraire en passant par tous les points ajoutés
   Future<void> _calculateRoute() async {
-    if (startPoint == null || endPoint == null) return;
+    if (routePoints.length < 2) return; // Besoin d'au moins 2 points pour un itinéraire
+
+    // Construire la chaîne des points pour la requête
+    String coordinates = routePoints
+        .map((point) => '${point.longitude},${point.latitude}')
+        .join('|');
 
     final url =
-        'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=${startPoint!.longitude},${startPoint!.latitude}&end=${endPoint!.longitude},${endPoint!.latitude}';
+        'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&coordinates=$coordinates';
 
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final coordinates = data['features'][0]['geometry']['coordinates'] as List;
+      final coordinatesData = data['features'][0]['geometry']['coordinates'] as List;
 
       setState(() {
-        routePoints = coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
+        routePoints = coordinatesData.map((coord) => LatLng(coord[1], coord[0])).toList();
       });
 
       // Affiche les coordonnées de l'itinéraire dans la console
@@ -54,17 +48,15 @@ class _CreationItineraireState extends State<CreationItineraire> {
     }
   }
 
-
   Future<void> _saveItineraire() async {
     if (routePoints.isNotEmpty) {
-      final coordinates = convertLatLngToMap(routePoints); // Convertir avant d'envoyer
+      final coordinates = convertLatLngToMap(routePoints);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Itinéraire créé avec succès!")),
       );
-      Navigator.pop(context, coordinates); // Retourne les coordonnées à EventForm
+      Navigator.pop(context, coordinates); // Retourne les coordonnées
     }
   }
-
 
   List<List<double>> convertLatLngToMap(List<LatLng> latLngList) {
     return latLngList.map((latLng) {
@@ -80,7 +72,11 @@ class _CreationItineraireState extends State<CreationItineraire> {
         actions: [
           IconButton(
             icon: Icon(Icons.save),
-            onPressed: _saveItineraire, // Enregistre l'itinéraire
+            onPressed: _saveItineraire,
+          ),
+          IconButton(
+            icon: Icon(Icons.directions),
+            onPressed: _calculateRoute, // Calculer l'itinéraire entre les points
           ),
         ],
       ),
@@ -88,31 +84,21 @@ class _CreationItineraireState extends State<CreationItineraire> {
         options: MapOptions(
           center: LatLng(33.69898407070958, -7.401901307269943),
           zoom: 13.0,
-          onTap: (tapPosition, point) => _setPoint(point),
+          onTap: (tapPosition, point) => _addPoint(point),
         ),
         children: [
           TileLayer(
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: ['a', 'b', 'c'],
           ),
-          if (startPoint != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: startPoint!,
-                  builder: (ctx) => Icon(Icons.location_on, color: Colors.green),
-                ),
-              ],
-            ),
-          if (endPoint != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: endPoint!,
-                  builder: (ctx) => Icon(Icons.location_on, color: Colors.red),
-                ),
-              ],
-            ),
+          MarkerLayer(
+            markers: routePoints
+                .map((point) => Marker(
+              point: point,
+              builder: (ctx) => Icon(Icons.location_on, color: Colors.blue),
+            ))
+                .toList(),
+          ),
           if (routePoints.isNotEmpty)
             PolylineLayer(
               polylines: [
